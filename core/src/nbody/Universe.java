@@ -21,11 +21,17 @@ public class Universe {
     }
 
     public void populate(){
-        addBody(new Body(new Vector3().setToRandomDirection().setLength((float) Math.cbrt((double) MathUtils.random())),
-                new Vector3().setToRandomDirection().setLength((float) Math.cbrt((double) MathUtils.random())),
+        populateUniformSphere();
+    }
+
+    public void populateUniformSphere(){
+        Vector3 position = new Vector3();
+        Vector3 velocity = new Vector3();
+        addBody(new Body(randomlySetToInsideUnitSphereUniformly(position),
+                randomlySetToInsideUnitSphereUniformly(velocity),
                 1 - MathUtils.random()));
         for(Body b : bodies){
-            b.init(1/60, bodies);
+            b.init(1f/60, bodies);
         }
     }
 
@@ -56,5 +62,16 @@ public class Universe {
         for(Body b : bodies){
             b.update();
         }
+    }
+
+    private Vector3 randomlySetToInsideUnitSphereUniformly(Vector3 vector){
+        do {
+            float randx = (float) Math.random();
+            float randy = (float) Math.random();
+            float randz = (float) Math.random();
+            vector.set(randx, randy, randz);
+        } while (vector.len2() > 1);
+
+        return vector;
     }
 }
