@@ -47,9 +47,10 @@ public class MyGdxGame extends Game {
 		shapeRenderer.setProjectionMatrix(cam.combined);
 
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Point);
-		shapeRenderer.setColor(Color.YELLOW);
-		for(Body b : universe.getBodies())
+		for(Body b : universe.getBodies()) {
+			shapeRenderer.setColor(new ExtendedColour(b.getMass()*300));
 			b.render(shapeRenderer);
+		}
 		shapeRenderer.end();
 	}
 	
