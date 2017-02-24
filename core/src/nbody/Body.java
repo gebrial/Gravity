@@ -1,5 +1,7 @@
 package nbody;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.Collection;
@@ -8,12 +10,16 @@ import java.util.Collection;
  * Created by Gebrial on 2/15/2017.
  */
 public class Body {
+    private static int UNIQUE_ID = 0;
+    private int uid = ++UNIQUE_ID;
+
     private Vector3 position, prevPosition, nextPosition, velocity;
     private float mass;
 
     public Body(Vector3 position, Vector3 velocity, float mass){
-        this.position = position;
-        this.velocity = velocity;
+        Gdx.app.log("Body", "initial position of " + uid + ": " + position.toString());
+        this.position = position.cpy();
+        this.velocity = velocity.cpy();
         this.mass = mass;
     }
 
@@ -25,10 +31,14 @@ public class Body {
     public void init(float delta, Collection<Body> bodies){
         nextPosition = new Vector3();
         for(Body b: bodies){
-            nextPosition.add(this.getPosition().cpy().sub(b.getPosition()).scl((float)(-b.mass/Math.pow(dst2(b), 1.5))));
+            if(b == this) continue;
+            float scale = (float)(-b.getMass()/Math.pow(dst2(b), 1.5));
+            Vector3 contribution = this.getPosition().cpy().sub(b.getPosition()).scl(scale);
+            nextPosition.add(contribution);
         }
         nextPosition.scl(delta*delta/2);
         nextPosition.add(getPosition().cpy().add(getVelocity().scl(delta)));
+        update();
     }
 
     public Vector3 getPosition(){
@@ -43,6 +53,10 @@ public class Body {
         return velocity;
     }
 
+    public float getMass(){
+        return mass;
+    }
+
     /**
      * Call this before 'update' to calculate next position.
      * @param delta
@@ -51,7 +65,10 @@ public class Body {
     public void updateNextPosition(float delta, Collection<Body> bodies){
         nextPosition.setZero();
         for(Body b: bodies){
-            nextPosition.add(this.getPosition().cpy().sub(b.getPosition()).scl((float)(-b.mass/Math.pow(dst2(b), 1.5))));
+            if(b == this) continue;
+            float scale =  (float) (-b.getMass()/Math.pow(dst2(b), 1.5));
+            Vector3 contribution = this.getPosition().cpy().sub(b.getPosition()).scl(scale);
+            nextPosition.add(contribution);
         }
         nextPosition.scl(delta*delta);
         nextPosition.add(getPosition().cpy().scl(2).sub(getPrevPosition()));
@@ -61,9 +78,18 @@ public class Body {
      * Call this to move body forward one step in time.
      */
     public void update(){
-        prevPosition = position;
-        position = nextPosition;
+        Gdx.app.log("Body", "next position " + uid + ": " + nextPosition.toString());
+        prevPosition = position.cpy();
+        position = nextPosition.cpy();
         nextPosition.setZero();
+    }
+
+    public void render(ShapeRenderer shapeRenderer){
+        shapeRenderer.point(position.x, position.y, position.z);
+    }
+
+    public int hashCode(){
+        return uid;
     }
 
     private float dst2(Body b){

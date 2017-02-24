@@ -1,5 +1,6 @@
 package nbody;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 
@@ -20,19 +21,25 @@ public class Universe {
         this.bodies = bodies;
     }
 
-    public void populate(){
-        populateUniformSphere();
+    public void populate(int numBodies){
+        populateUniformSphere(numBodies);
     }
 
-    public void populateUniformSphere(){
-        Vector3 position = new Vector3();
-        Vector3 velocity = new Vector3();
-        addBody(new Body(randomlySetToInsideUnitSphereUniformly(position),
-                randomlySetToInsideUnitSphereUniformly(velocity),
-                1 - MathUtils.random()));
-        for(Body b : bodies){
-            b.init(1f/60, bodies);
+    public void populateUniformSphere(int numBodies){
+        for(int i = 0; i < numBodies; i++){
+            Vector3 position = new Vector3();
+            Vector3 velocity = new Vector3();
+            addBody(new Body(randomlySetToInsideUnitSphereUniformly(position),
+//                    randomlySetToInsideUnitSphereUniformly(velocity),
+                    velocity,
+                    1 - MathUtils.random()));
         }
+    }
+
+    public void initBodies(float delta){
+        Gdx.app.log("Universe", "initializing bodies");
+        for(Body b : bodies)
+            b.init(delta, bodies);
     }
 
     public void addBody(Body b){
@@ -56,6 +63,7 @@ public class Universe {
     }
 
     public void update(float delta){
+        Gdx.app.log("Universe", "updating bodies");
         for(Body b : bodies){
             b.updateNextPosition(delta, bodies);
         }
@@ -65,12 +73,13 @@ public class Universe {
     }
 
     private Vector3 randomlySetToInsideUnitSphereUniformly(Vector3 vector){
+        float scaling = 100;
         do {
-            float randx = (float) Math.random();
-            float randy = (float) Math.random();
-            float randz = (float) Math.random();
+            float randx = (float) Math.random()*scaling;
+            float randy = (float) Math.random()*scaling;
+            float randz = (float) Math.random()*scaling;
             vector.set(randx, randy, randz);
-        } while (vector.len2() > 1);
+        } while (vector.len2() > scaling);
 
         return vector;
     }
