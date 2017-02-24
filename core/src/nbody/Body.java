@@ -53,6 +53,29 @@ public class Body {
         return velocity;
     }
 
+    public double calculateInitialKE(){
+        double KE = 0.5d*mass*velocity.len2();
+        return KE;
+    }
+
+    public double calculateInitialPE(Collection<Body> bodies){
+        double PE = 0;
+        for(Body b : bodies){
+            PE += calculateInitialPE(b);
+        }
+        return PE;
+    }
+
+    public double calculateInitialPE(Body body){
+        if(body == this) return 0d;
+        double PE = -mass*body.getMass()/Math.pow(dst2(body), 1f/2);
+        return PE;
+    }
+
+    public double calculateInitialEnergy(Collection<Body> bodies){
+        return calculateInitialKE() + calculateInitialPE(bodies);
+    }
+
     public float getMass(){
         return mass;
     }

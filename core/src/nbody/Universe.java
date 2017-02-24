@@ -42,6 +42,30 @@ public class Universe {
             b.init(delta, bodies);
     }
 
+    public double calculateTotalKE(){
+        double totalKE = 0;
+
+        for(Body b: bodies){
+            totalKE += b.calculateInitialKE();
+        }
+
+        return totalKE;
+    }
+
+    public double calculateTotalPE(){
+        double totalPE = 0;
+
+        for(Body b: bodies){
+            totalPE += b.calculateInitialPE(bodies);
+        }
+
+        return totalPE;
+    }
+
+    public double calculateTotalEnergy(){
+        return calculateTotalKE() + calculateTotalPE();
+    }
+
     public void addBody(Body b){
         bodies.add(b);
     }
